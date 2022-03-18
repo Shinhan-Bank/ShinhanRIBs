@@ -64,7 +64,7 @@ public protocol Interactable: InteractorScope {
 /// active.
 ///
 /// An `Interactor` should only perform its business logic when it's currently active.
-open class Interactor: Interactable {
+open class Interactor<DependencyType>: Interactable, HasDependency {
 
     /// Indicates if the interactor is active.
     public final var isActive: Bool {
@@ -75,10 +75,15 @@ open class Interactor: Interactable {
     public final var isActiveStream: AnyPublisher<Bool, Never> {
         return isActiveSubject.removeDuplicates().eraseToAnyPublisher()
     }
+    
+    /// The dependency of this `Interactor`.
+    public let dependency: DependencyType
 
     /// Initializer.
-    public init() {
-        // No-op
+    ///
+    /// - parameter dependency: The dependency of this `Interactor`, usually provided by the `Component`.
+    public init(dependency: DependencyType) {
+        self.dependency = dependency
     }
 
     /// Activate the `Interactor`.
@@ -193,7 +198,7 @@ public extension AnyCancellable {
     ///
     /// - parameter interactor: The interactor to cancel the subscription based on.
     @discardableResult
-    func cancelOnDeactivate(interactor: Interactor) -> AnyCancellable {
+    func cancelOnDeactivate(interactor: Interactor<Any>) -> AnyCancellable {
         if let activenessCancellable = interactor.activenessCancellable {
             activenessCancellable.insert(self)
         } else {
@@ -219,7 +224,7 @@ public extension AnyCancellable {
     /// - parameter interactor: The interactor to cancel the subscription based on.
     @available(*, deprecated, renamed: "cancelOnDeactivate(interactor:)")
     @discardableResult
-    func disposeOnDeactivate(interactor: Interactor) -> AnyCancellable {
+    func disposeOnDeactivate(interactor: Interactor<Any>) -> AnyCancellable {
         cancelOnDeactivate(interactor: interactor)
     }
 }

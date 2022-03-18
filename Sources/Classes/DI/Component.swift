@@ -23,7 +23,7 @@ import Foundation
 ///
 /// A component subclass implementation should conform to child 'Dependency' protocols, defined by all of its immediate
 /// children.
-open class Component<DependencyType>: Dependency {
+open class Component<DependencyType>: Dependency, HasDependency {
 
     /// The dependency of this `Component`.
     public let dependency: DependencyType
