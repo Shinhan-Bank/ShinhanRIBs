@@ -65,6 +65,9 @@ public protocol Routing: RouterScope {
     func detachChild(_ child: Routing)
 }
 
+/// The base routing logic for router.
+public protocol RoutingLogic: AnyObject {}
+
 /// The base class of all routers that does not own view controllers, representing application states.
 ///
 /// A router acts on inputs from its corresponding interactor, to manipulate application state, forming a tree of
@@ -73,7 +76,7 @@ public protocol Routing: RouterScope {
 /// Router drives the lifecycle of its owned `Interactor`.
 ///
 /// Routers should always use helper builders to instantiate children routers.
-open class Router<InteractorType>: Routing {
+open class Router<InteractorType>: Routing, RoutingLogic {
 
     /// The corresponding `Interactor` owned by this `Router`.
     public let interactor: InteractorType

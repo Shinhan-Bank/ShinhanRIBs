@@ -98,7 +98,9 @@ public class LeakDetector {
                         print(message)
                     }
                 } else {
+                    #if DEBUG
                     assert(didDeallocate, message)
+                    #endif
                 }
             }
 
@@ -134,7 +136,9 @@ public class LeakDetector {
                         print(message)
                     }
                 } else {
+                    #if DEBUG
                     assert(viewDidDisappear, message)
+                    #endif
                 }
             }
 

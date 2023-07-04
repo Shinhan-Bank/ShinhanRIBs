@@ -22,6 +22,9 @@ public protocol ViewControllable: AnyObject {
     var uiviewController: UIViewController { get }
 }
 
+/// The base display logic for `ViewController`.
+public protocol DisplayLogic: AnyObject {}
+
 /// Default implementation on `UIViewController` to conform to `ViewControllable` protocol
 public extension ViewControllable where Self: UIViewController {
 
@@ -37,40 +40,13 @@ public extension ViewControllable {
         self.uiviewController.present(viewControllable.uiviewController, animated: animated, completion: completion)
     }
 
+    func presentNavigation(_ navigationControllable: NavigationControllable, presentationStyle: UIModalPresentationStyle = .fullScreen, animated: Bool, completion: (() -> Void)?) {
+        navigationControllable.navigationController.modalPresentationStyle = presentationStyle
+        self.uiviewController.present(navigationControllable.navigationController, animated: animated, completion: completion)
+    }
+    
     func dismiss(animated: Bool, completion: (() -> Void)?) {
         guard !uiviewController.isBeingDismissed else { return }
         self.uiviewController.dismiss(animated: animated, completion: completion)
-    }
-
-    func pushViewController(_ viewControllable: ViewControllable, animated: Bool) {
-        if let nav = self.uiviewController as? UINavigationController {
-            nav.pushViewController(viewControllable.uiviewController, animated: animated)
-        } else {
-            self.uiviewController.navigationController?.pushViewController(viewControllable.uiviewController, animated: animated)
-        }
-    }
-
-    func popViewController(animated: Bool) {
-        if let nav = self.uiviewController as? UINavigationController {
-            nav.popViewController(animated: animated)
-        } else {
-            self.uiviewController.navigationController?.popViewController(animated: animated)
-        }
-    }
-
-    func popToRoot(animated: Bool) {
-        if let nav = self.uiviewController as? UINavigationController {
-            nav.popToRootViewController(animated: animated)
-        } else {
-            self.uiviewController.navigationController?.popToRootViewController(animated: animated)
-        }
-    }
-
-    func setViewControllers(_ viewControllerables: [ViewControllable]) {
-        if let nav = self.uiviewController as? UINavigationController {
-            nav.setViewControllers(viewControllerables.map(\.uiviewController), animated: true)
-        } else {
-            self.uiviewController.navigationController?.setViewControllers(viewControllerables.map(\.uiviewController), animated: true)
-        }
     }
 }

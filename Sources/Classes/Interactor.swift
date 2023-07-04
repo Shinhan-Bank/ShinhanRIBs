@@ -16,7 +16,6 @@
 
 import Foundation
 import Combine
-import UIKit
 
 /// Protocol defining the activeness of an interactor's scope.
 public protocol InteractorScope: AnyObject {
@@ -57,6 +56,9 @@ public protocol Interactable: InteractorScope {
     func deactivate()
 }
 
+/// The base business logic for `Interactor`.
+public protocol BusinessLogic: AnyObject {}
+
 /// An `Interactor` defines a unit of business logic that corresponds to a router unit.
 ///
 /// An `Interactor` has a lifecycle driven by its owner router. When the corresponding router is attached to its
@@ -64,7 +66,7 @@ public protocol Interactable: InteractorScope {
 /// active.
 ///
 /// An `Interactor` should only perform its business logic when it's currently active.
-open class Interactor<DependencyType>: Interactable, HasDependency {
+open class Interactor<DependencyType>: Interactable, BusinessLogic, HasDependency {
 
     /// Indicates if the interactor is active.
     public final var isActive: Bool {
@@ -198,7 +200,7 @@ public extension AnyCancellable {
     ///
     /// - parameter interactor: The interactor to cancel the subscription based on.
     @discardableResult
-    func cancelOnDeactivate(interactor: Interactor<Any>) -> AnyCancellable {
+    func cancelOnDeactivate<Dependency>(interactor: Interactor<Dependency>) -> AnyCancellable {
         if let activenessCancellable = interactor.activenessCancellable {
             activenessCancellable.insert(self)
         } else {
@@ -206,25 +208,5 @@ public extension AnyCancellable {
             print("Subscription immediately terminated, since \(interactor) is inactive.")
         }
         return self
-    }
-
-    /// Cancels the subscription based on the lifecycle of the given `Interactor`. The subscription is
-    /// cancelled when the interactor is deactivated.
-    ///
-    /// - note: This is the preferred method when trying to confine a subscription to the lifecycle of an
-    ///   `Interactor`.
-    ///
-    /// When using this composition, the subscription closure may freely retain the interactor itself, since the
-    /// subscription closure is cancelled once the interactor is deactivated, thus releasing the retain cycle
-    /// before the interactor needs to be deallocated.
-    ///
-    /// If the given interactor is inactive at the time this method is invoked, the subscription is immediately
-    /// terminated.
-    ///
-    /// - parameter interactor: The interactor to cancel the subscription based on.
-    @available(*, deprecated, renamed: "cancelOnDeactivate(interactor:)")
-    @discardableResult
-    func disposeOnDeactivate(interactor: Interactor<Any>) -> AnyCancellable {
-        cancelOnDeactivate(interactor: interactor)
     }
 }
